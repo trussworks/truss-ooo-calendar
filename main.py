@@ -9,7 +9,7 @@ __license__ = "Apache 2.0"
 
 import csv
 
-def nameFromPaylocityName(p):
+def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
     return names[1].strip() + " " + names[0].strip()
     
@@ -42,7 +42,6 @@ def PaylocityCSVToData(csv_file):
         
 def main():
     print(PaylocityCSVToData("Hello world"))
-    
 
 if __name__ == "__main__":
     main()
