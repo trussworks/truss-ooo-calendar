@@ -8,6 +8,7 @@ __version__ = "0.0.1"
 __license__ = "Apache 2.0"
 
 import csv
+from typing import TextIO
 
 def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
@@ -28,7 +29,7 @@ def eventFromPaylocityCSVRow(row: list[str]) -> dict[str, str]:
     }
     return event
     
-def PaylocityCSVToData(csv_file) -> str:
+def PaylocityCSVToData(csv_file: TextIO) -> str:
     csvreader = csv.reader(csv_file)
     events = []
     try:
@@ -41,7 +42,8 @@ def PaylocityCSVToData(csv_file) -> str:
     return "test"
         
 def main() -> None:
-    print(PaylocityCSVToData("Hello world"))
+    with open('test_data.csv', newline='') as csvfile:
+        data = PaylocityCSVToData(csvfile)
     exit(0)
 
 if __name__ == "__main__":
