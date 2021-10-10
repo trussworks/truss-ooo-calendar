@@ -9,12 +9,59 @@ __license__ = "Apache 2.0"
 
 import csv
 from typing import TextIO
+from enum import Enum, auto
 
+class LeaveType(Enum):
+    VACATION = auto()
+    SICK = auto()
+    SURGE = auto()
+    BEREAVEMENT = auto()
+    LEAVE = auto()
+    
+    @staticmethod
+    # LeaveType is a string literal here because the class LeaveType isn't
+    # defined yet; this is how Python implements forward references.
+    def from_str(label: str) -> 'LeaveType':
+        if label in ('Vacation', 'Floating Holiday'):
+            return LeaveType.VACATION
+        elif label in ('Sick', 'COVID Childcare'):
+            return LeaveType.SICK
+        elif label in ('Surge'):
+            return LeaveType.SURGE
+        elif label in ('Bereavement'):
+            return LeaveType.BEREAVEMENT
+        elif label in ('Military Leave', 'Jury Duty'):
+            return LeaveType.LEAVE
+        else:
+            raise NotImplementedError('Unknown LeaveType: ' + label)
+
+class LeaveStatus(Enum):
+    TAKEN = auto()
+    CANCELED = auto()
+    DECLINED = auto()
+    APPROVED = auto()
+    REQUESTED = auto()
+
+    @staticmethod
+    def from_str(label: str) -> 'LeaveStatus':
+        if label in ('Taken'):
+            return LeaveStatus.TAKEN
+        elif label in ('Cancelled'):
+            return LeaveStatus.CANCELED
+        elif label in ('Declined'):
+            return LeaveStatus.DECLINED
+        elif label in ('Approved'):
+            return LeaveStatus.APPROVED
+        elif label in ('Submitted'):
+            return LeaveStatus.REQUESTED
+        else:
+            raise NotImplementedError('Unknown LeaveStatus: ' + label)
+        
 def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
     return names[1].strip() + " " + names[0].strip()
     
-def eventFromPaylocityCSVRow(row: list[str]) -> dict[str, str]:
+def eventFromPaylocityCSVRow(row: list[str]) -> dict[str, object]:
     # row[6] is lastname, firstname
     # row[8] is type
     # row[9] is the start date
@@ -22,10 +69,10 @@ def eventFromPaylocityCSVRow(row: list[str]) -> dict[str, str]:
     # row[13] is the status (Taken, Approved, Cancelled)
     event = {
         "name": nameFromPaylocityName(row[6]),
-        "type": row[8],
+        "type": LeaveType.from_str(row[8]),
         "start_date": row[9],
         "end_date": row[10],
-        "status": row[13]
+        "status": LeaveStatus.from_str(row[13])
     }
     return event
     

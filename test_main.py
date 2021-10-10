@@ -15,10 +15,10 @@ class TestMain(unittest.TestCase):
                "Taken", "Bosslast, Bossfirst"]
         testEvent = {
             "name": "Firstname Lastname",
-            "type": "Vacation",
+            "type": main.LeaveType.VACATION,
             "start_date": "01/01/2000",
             "end_date": "01/02/2000",
-            "status": "Taken"
+            "status": main.LeaveStatus.TAKEN
         }
         event = main.eventFromPaylocityCSVRow(row)
         self.assertEqual(event, testEvent)
