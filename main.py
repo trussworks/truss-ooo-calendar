@@ -13,7 +13,7 @@ def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
     return names[1].strip() + " " + names[0].strip()
     
-def eventFromPaylocityCSVRow(row):
+def eventFromPaylocityCSVRow(row: list[str]) -> dict[str, str]:
     # row[6] is lastname, firstname
     # row[8] is type
     # row[9] is the start date
@@ -28,7 +28,7 @@ def eventFromPaylocityCSVRow(row):
     }
     return event
     
-def PaylocityCSVToData(csv_file):
+def PaylocityCSVToData(csv_file) -> str:
     csvreader = csv.reader(csv_file)
     events = []
     try:
@@ -40,8 +40,9 @@ def PaylocityCSVToData(csv_file):
     print(events)
     return "test"
         
-def main():
+def main() -> None:
     print(PaylocityCSVToData("Hello world"))
+    exit(0)
 
 if __name__ == "__main__":
     main()
