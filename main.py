@@ -34,6 +34,10 @@ def PaylocityCSVToData(csv_file: TextIO) -> str:
     events = []
     try:
         for row in csvreader:
+            # The CSV from Paylocity has empty lines, which the
+            # CSVReader "helpfully" returns as a row with 0 items.
+            if len(row) < 15:
+                continue
             event = eventFromPaylocityCSVRow(row)
             events.append(event)
     except csv.Error as e:
