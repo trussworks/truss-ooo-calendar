@@ -56,24 +56,37 @@ class LeaveStatus(Enum):
             return LeaveStatus.REQUESTED
         else:
             raise NotImplementedError('Unknown LeaveStatus: ' + label)
-        
+class LeaveEvent:
+    name: str
+    type: LeaveType
+    start_date: str
+    end_date: str
+    status: LeaveStatus
+    
 def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
     return names[1].strip() + " " + names[0].strip()
     
-def eventFromPaylocityCSVRow(row: list[str]) -> dict[str, object]:
+def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     # row[6] is lastname, firstname
     # row[8] is type
     # row[9] is the start date
     # row[10] is the end date
     # row[13] is the status (Taken, Approved, Cancelled)
-    event = {
-        "name": nameFromPaylocityName(row[6]),
-        "type": LeaveType.from_str(row[8]),
-        "start_date": row[9],
-        "end_date": row[10],
-        "status": LeaveStatus.from_str(row[13])
-    }
+    event = LeaveEvent()
+    event.name = nameFromPaylocityName(row[6])
+    event.type = LeaveType.from_str(row[8])
+    event.start_date = row[9]
+    event.end_date = row[10]
+    event.status = LeaveStatus.from_str(row[13])
+    
+    # event = {
+    #     "name": nameFromPaylocityName(row[6]),
+    #     "type": LeaveType.from_str(row[8]),
+    #     "start_date": row[9],
+    #     "end_date": row[10],
+    #     "status": LeaveStatus.from_str(row[13])
+    # }
     return event
     
 def PaylocityCSVToData(csv_file: TextIO) -> str:
