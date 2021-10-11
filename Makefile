@@ -5,7 +5,7 @@ run:
 	./main.py
 
 test: .prereqs.stamp
-	mypy *.py
+	mypy .
 	python3 -m unittest discover
 
 # Shortcut to run pre-commit hooks over the entire repo.
@@ -20,7 +20,10 @@ pre-commit: .git/hooks/pre-commit
 	bin/prereqs -c prereqs.conf
 	touch .prereqs.stamp
 
+black:
+	python3 -m black .
+
 clean:
 	rm -f .*.stamp
 
-.PHONY: run test clean pre-commit
+.PHONY: run test clean pre-commit black
