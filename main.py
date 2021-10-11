@@ -11,29 +11,31 @@ import csv
 from typing import TextIO
 from enum import Enum, auto
 
+
 class LeaveType(Enum):
     VACATION = auto()
     SICK = auto()
     SURGE = auto()
     BEREAVEMENT = auto()
     LEAVE = auto()
-    
+
     @staticmethod
     # LeaveType is a string literal here because the class LeaveType isn't
     # defined yet; this is how Python implements forward references.
-    def from_str(label: str) -> 'LeaveType':
-        if label in ('Vacation', 'Floating Holiday'):
+    def from_str(label: str) -> "LeaveType":
+        if label in ("Vacation", "Floating Holiday"):
             return LeaveType.VACATION
-        elif label in ('Sick', 'COVID Childcare'):
+        elif label in ("Sick", "COVID Childcare"):
             return LeaveType.SICK
-        elif label in ('Surge'):
+        elif label in ("Surge"):
             return LeaveType.SURGE
-        elif label in ('Bereavement'):
+        elif label in ("Bereavement"):
             return LeaveType.BEREAVEMENT
-        elif label in ('Military Leave', 'Jury Duty'):
+        elif label in ("Military Leave", "Jury Duty"):
             return LeaveType.LEAVE
         else:
-            raise NotImplementedError('Unknown LeaveType: ' + label)
+            raise NotImplementedError("Unknown LeaveType: " + label)
+
 
 class LeaveStatus(Enum):
     TAKEN = auto()
@@ -43,30 +45,34 @@ class LeaveStatus(Enum):
     REQUESTED = auto()
 
     @staticmethod
-    def from_str(label: str) -> 'LeaveStatus':
-        if label in ('Taken'):
+    def from_str(label: str) -> "LeaveStatus":
+        if label in ("Taken"):
             return LeaveStatus.TAKEN
-        elif label in ('Cancelled'):
+        elif label in ("Cancelled"):
             return LeaveStatus.CANCELED
-        elif label in ('Declined'):
+        elif label in ("Declined"):
             return LeaveStatus.DECLINED
-        elif label in ('Approved'):
+        elif label in ("Approved"):
             return LeaveStatus.APPROVED
-        elif label in ('Submitted'):
+        elif label in ("Submitted"):
             return LeaveStatus.REQUESTED
         else:
-            raise NotImplementedError('Unknown LeaveStatus: ' + label)
+            raise NotImplementedError("Unknown LeaveStatus: " + label)
+
+
 class LeaveEvent:
     name: str
     type: LeaveType
     start_date: str
     end_date: str
     status: LeaveStatus
-    
+
+
 def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
     return names[1].strip() + " " + names[0].strip()
-    
+
+
 def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     # row[6] is lastname, firstname
     # row[8] is type
@@ -79,7 +85,7 @@ def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     event.start_date = row[9]
     event.end_date = row[10]
     event.status = LeaveStatus.from_str(row[13])
-    
+
     # event = {
     #     "name": nameFromPaylocityName(row[6]),
     #     "type": LeaveType.from_str(row[8]),
@@ -88,7 +94,8 @@ def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     #     "status": LeaveStatus.from_str(row[13])
     # }
     return event
-    
+
+
 def PaylocityCSVToData(csv_file: TextIO) -> str:
     csvreader = csv.reader(csv_file)
     events = []
@@ -101,14 +108,15 @@ def PaylocityCSVToData(csv_file: TextIO) -> str:
             event = eventFromPaylocityCSVRow(row)
             events.append(event)
     except csv.Error as e:
-        print('line {}: {}'.format(csvreader.line_num, e))
-    print(events)
+        print("line {}: {}".format(csvreader.line_num, e))
     return "test"
-        
+
+
 def main() -> None:
-    with open('test_data.csv', newline='') as csvfile:
+    with open("test_data.csv", newline="") as csvfile:
         data = PaylocityCSVToData(csvfile)
     exit(0)
+
 
 if __name__ == "__main__":
     main()
