@@ -67,6 +67,17 @@ class LeaveEvent:
     end_date: str
     status: LeaveStatus
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, LeaveEvent):
+            return NotImplemented
+        return (
+            self.name == other.name
+            and self.type == other.type
+            and self.start_date == other.start_date
+            and self.end_date == other.end_date
+            and self.status == other.status
+        )
+
 
 def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
@@ -75,24 +86,16 @@ def nameFromPaylocityName(p: str) -> str:
 
 def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     # row[6] is lastname, firstname
-    # row[8] is type
+    # row[8] is type (Vacation, Sick, etc.)
     # row[9] is the start date
     # row[10] is the end date
-    # row[13] is the status (Taken, Approved, Cancelled)
+    # row[13] is the status (Taken, Approved, Cancelled, etc.)
     event = LeaveEvent()
     event.name = nameFromPaylocityName(row[6])
     event.type = LeaveType.from_str(row[8])
     event.start_date = row[9]
     event.end_date = row[10]
     event.status = LeaveStatus.from_str(row[13])
-
-    # event = {
-    #     "name": nameFromPaylocityName(row[6]),
-    #     "type": LeaveType.from_str(row[8]),
-    #     "start_date": row[9],
-    #     "end_date": row[10],
-    #     "status": LeaveStatus.from_str(row[13])
-    # }
     return event
 
 

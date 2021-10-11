@@ -32,14 +32,6 @@ class TestMain(unittest.TestCase):
         testEvent.start_date = "01/01/2000"
         testEvent.end_date = "01/02/2000"
         testEvent.status = main.LeaveStatus.TAKEN
-
-        # testEvent = {
-        #     "name": "Firstname Lastname",
-        #     "type": main.LeaveType.VACATION,
-        #     "start_date": "01/01/2000",
-        #     "end_date": "01/02/2000",
-        #     "status": main.LeaveStatus.TAKEN
-        # }
         event = main.eventFromPaylocityCSVRow(row)
         self.assertEqual(event, testEvent)
 
