@@ -1,12 +1,13 @@
 SHELL = /bin/bash
 PRE-COMMIT := $(shell which pre-commit)
+PIPENV := bin/pipenv
 
 run:
-	./main.py
+	$(PIPENV) run ./main.py
 
-test: .prereqs.stamp
-	mypy .
-	python3 -m unittest discover
+test: .prereqs.stamp .pipenv-dev-install.stamp
+	$(PIPENV) run mypy .
+	$(PIPENV) run python3 -m unittest discover
 
 # Shortcut to run pre-commit hooks over the entire repo.
 pre-commit: .git/hooks/pre-commit
@@ -21,7 +22,11 @@ pre-commit: .git/hooks/pre-commit
 	touch .prereqs.stamp
 
 black:
-	python3 -m black .
+	$(PIPENV) run python3 -m black .
+
+.pipenv-dev-install.stamp:
+	$(PIPENV) install --dev --pre
+	touch .pipenv-dev-install.stamp
 
 clean:
 	rm -f .*.stamp

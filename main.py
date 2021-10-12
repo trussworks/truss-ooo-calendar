@@ -8,6 +8,7 @@ __version__ = "0.0.1"
 __license__ = "Apache 2.0"
 
 import csv
+import icalendar  # type: ignore
 from typing import TextIO
 from enum import Enum, auto
 
