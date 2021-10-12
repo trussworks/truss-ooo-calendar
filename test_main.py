@@ -1,5 +1,6 @@
 import unittest
 import main
+from datetime import datetime
 
 
 class TestMain(unittest.TestCase):
@@ -29,8 +30,8 @@ class TestMain(unittest.TestCase):
         testEvent = main.LeaveEvent()
         testEvent.name = "Firstname Lastname"
         testEvent.type = main.LeaveType.VACATION
-        testEvent.start_date = "01/01/2000"
-        testEvent.end_date = "01/02/2000"
+        testEvent.start_date = datetime(2000, 1, 1)
+        testEvent.end_date = datetime(2000, 1, 2)
         testEvent.status = main.LeaveStatus.TAKEN
         event = main.eventFromPaylocityCSVRow(row)
         self.assertEqual(event, testEvent)

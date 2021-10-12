@@ -8,7 +8,8 @@ __version__ = "0.0.1"
 __license__ = "Apache 2.0"
 
 import csv
-import icalendar  # type: ignore
+from icalendar import Calendar, Event  # type: ignore
+from datetime import datetime
 from typing import TextIO
 from enum import Enum, auto
 
@@ -64,8 +65,8 @@ class LeaveStatus(Enum):
 class LeaveEvent:
     name: str
     type: LeaveType
-    start_date: str
-    end_date: str
+    start_date: datetime
+    end_date: datetime
     status: LeaveStatus
 
     def __eq__(self, other: object) -> bool:
@@ -94,8 +95,8 @@ def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     event = LeaveEvent()
     event.name = nameFromPaylocityName(row[6])
     event.type = LeaveType.from_str(row[8])
-    event.start_date = row[9]
-    event.end_date = row[10]
+    event.start_date = datetime.strptime(row[9], "%m/%d/%Y")
+    event.end_date = datetime.strptime(row[10], "%m/%d/%Y")
     event.status = LeaveStatus.from_str(row[13])
     return event
 
