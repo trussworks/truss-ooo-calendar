@@ -101,7 +101,7 @@ def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     return event
 
 
-def PaylocityCSVToData(csv_file: TextIO) -> str:
+def PaylocityCSVToLeaveEvents(csv_file: TextIO) -> list[LeaveEvent]:
     csvreader = csv.reader(csv_file)
     events = []
     try:
@@ -114,12 +114,12 @@ def PaylocityCSVToData(csv_file: TextIO) -> str:
             events.append(event)
     except csv.Error as e:
         print("line {}: {}".format(csvreader.line_num, e))
-    return "test"
+    return events
 
 
 def main() -> None:
     with open("test_data.csv", newline="") as csvfile:
-        data = PaylocityCSVToData(csvfile)
+        data = PaylocityCSVToLeaveEvents(csvfile)
     exit(0)
 
 

@@ -4,10 +4,12 @@ from datetime import datetime
 
 
 class TestMain(unittest.TestCase):
-    def test_PaylocityCSVToData(self) -> None:
+    def test_PaylocityCSVToLeaveEvents(self) -> None:
         with open("test_data.csv", newline="") as csvfile:
-            data = main.PaylocityCSVToData(csvfile)
-        self.assertEqual(data, "test")
+            data = main.PaylocityCSVToLeaveEvents(csvfile)
+        # We're just checking the number of rows is the same; this
+        # isn't a great test but it is a decent smoke test.
+        self.assertEqual(len(data), 906)
 
     def test_eventFromPaylocityCSVRow(self) -> None:
         row = [
