@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 icalendar = "*"
+paramiko = "*"
+types-paramiko = "*"
 
 [dev-packages]
 mypy = "*"

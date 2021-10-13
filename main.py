@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 from typing import TextIO
 from enum import Enum, auto
 from uuid import uuid4
+from paramiko import SSHClient, SFTPClient, AutoAddPolicy
 
 
 class LeaveType(Enum):
@@ -154,13 +155,27 @@ def iCalendarFromLeaveEvents(events: list[LeaveEvent]) -> Calendar:
     return cal
 
 
+def PaylocityCSVToiCalendar(csv: TextIO) -> Calendar:
+    events = PaylocityCSVToLeaveEvents(csv)
+    cal = iCalendarFromLeaveEvents(events)
+    return cal
+
+
+def makeSFTPClient() -> None:
+    with SSHClient() as c:
+        c.set_missing_host_key_policy(AutoAddPolicy)
+        c.connect("ftp.paylocity.com", username="Trussworks", password="")
+        sftp = c.open_sftp()
+        files = sftp.listdir()
+        print(files)
+
+
 def main() -> None:
+    makeSFTPClient()
     with open("test_data.csv", newline="") as csvfile:
-        events = PaylocityCSVToLeaveEvents(csvfile)
-        cal = iCalendarFromLeaveEvents(events)
-        f = open("output.ics", "wb")
-        f.write(cal.to_ical())
-        f.close()
+        cal = PaylocityCSVToiCalendar(csvfile)
+        with open("output.ics", "wb") as f:
+            f.write(cal.to_ical())
     exit(0)
 
 

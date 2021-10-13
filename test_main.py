@@ -9,7 +9,7 @@ class TestMain(unittest.TestCase):
             data = main.PaylocityCSVToLeaveEvents(csvfile)
         # We're just checking the number of rows is the same; this
         # isn't a great test but it is a decent smoke test.
-        self.assertEqual(len(data), 906)
+        self.assertEqual(len(data), 940)
 
     def test_eventFromPaylocityCSVRow(self) -> None:
         row = [
