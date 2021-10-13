@@ -67,8 +67,8 @@ class LeaveStatus(Enum):
 class LeaveEvent:
     name: str
     type: LeaveType
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date: date
     status: LeaveStatus
 
     def __eq__(self, other: object) -> bool:
