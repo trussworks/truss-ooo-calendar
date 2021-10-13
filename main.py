@@ -9,9 +9,11 @@ __license__ = "Apache 2.0"
 
 import csv
 from icalendar import Calendar, Event  # type: ignore
-from datetime import datetime
+from datetime import datetime, date, timedelta
+from zoneinfo import ZoneInfo
 from typing import TextIO
 from enum import Enum, auto
+from uuid import uuid4
 
 
 class LeaveType(Enum):
@@ -95,8 +97,10 @@ def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     event = LeaveEvent()
     event.name = nameFromPaylocityName(row[6])
     event.type = LeaveType.from_str(row[8])
-    event.start_date = datetime.strptime(row[9], "%m/%d/%Y")
-    event.end_date = datetime.strptime(row[10], "%m/%d/%Y")
+    # Need timezone aware datetime. strptime doesn't let us do that
+    # directly, so we use replace() to add timezone info.
+    event.start_date = datetime.strptime(row[9], "%m/%d/%Y").date()
+    event.end_date = datetime.strptime(row[10], "%m/%d/%Y").date()
     event.status = LeaveStatus.from_str(row[13])
     return event
 
@@ -117,9 +121,46 @@ def PaylocityCSVToLeaveEvents(csv_file: TextIO) -> list[LeaveEvent]:
     return events
 
 
+def makeCalendar() -> Calendar:
+    cal = Calendar()
+    # PRODID and VERSION are required by RFC 5545
+    cal.add("PRODID", "works.truss.truss-ooo-calendar")
+    cal.add("VERSION", "2.0")
+    return cal
+
+
+def vEventFromLeaveEvent(e: LeaveEvent) -> Event:
+    event = Event()
+    now = datetime.now(ZoneInfo("UTC"))
+    u = uuid4()
+    one_day = timedelta(days=1)
+    event.add("SUMMARY", e.name + " is OOO")
+    event.add("DTSTART", e.start_date)
+    # "All day" events have their end date be 1 day *past* where
+    # the calendar event display. Ex: You're OOO from 1/1/2021
+    # to 1/2/2021. The VEVENT would have a DTSTART of 1/1/2021, and a
+    # DTEND of 1/3/2021.
+    event.add("DTEND", e.end_date + one_day)
+    event.add("DTSTAMP", now)  # Must be in UTC according to RFC 5545
+    event.add("UID", u.hex)
+    return event
+
+
+def iCalendarFromLeaveEvents(events: list[LeaveEvent]) -> Calendar:
+    cal = makeCalendar()
+    for e in events:
+        vevent = vEventFromLeaveEvent(e)
+        cal.add_component(vevent)
+    return cal
+
+
 def main() -> None:
     with open("test_data.csv", newline="") as csvfile:
-        data = PaylocityCSVToLeaveEvents(csvfile)
+        events = PaylocityCSVToLeaveEvents(csvfile)
+        cal = iCalendarFromLeaveEvents(events)
+        f = open("output.ics", "wb")
+        f.write(cal.to_ical())
+        f.close()
     exit(0)
 
 
