@@ -11,10 +11,10 @@ import csv
 from icalendar import Calendar, Event  # type: ignore
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
-from typing import TextIO
+from typing import TextIO, Union
 from enum import Enum, auto
 from uuid import uuid4
-from paramiko import SSHClient, SFTPClient, AutoAddPolicy
+from paramiko import SSHClient, SFTPClient, SFTPFile, AutoAddPolicy
 
 
 class LeaveType(Enum):
@@ -106,7 +106,7 @@ def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
     return event
 
 
-def PaylocityCSVToLeaveEvents(csv_file: TextIO) -> list[LeaveEvent]:
+def PaylocityCSVToLeaveEvents(csv_file: Union[TextIO, SFTPFile]) -> list[LeaveEvent]:
     csvreader = csv.reader(csv_file)
     events = []
     try:
@@ -155,27 +155,33 @@ def iCalendarFromLeaveEvents(events: list[LeaveEvent]) -> Calendar:
     return cal
 
 
-def PaylocityCSVToiCalendar(csv: TextIO) -> Calendar:
+def PaylocityCSVToiCalendar(csv: Union[TextIO, SFTPFile]) -> Calendar:
     events = PaylocityCSVToLeaveEvents(csv)
     cal = iCalendarFromLeaveEvents(events)
     return cal
 
 
-def makeSFTPClient() -> None:
+def sftpLatestPaylocityReportToCalendar(
+    server: str, username: str, password: str
+) -> Calendar:
     with SSHClient() as c:
         c.set_missing_host_key_policy(AutoAddPolicy)
-        c.connect("ftp.paylocity.com", username="Trussworks", password="")
+        c.connect(server, username=username, password=password)
         sftp = c.open_sftp()
         files = sftp.listdir()
-        print(files)
+        # The reports are named Time_Off_Requests_20211012.csv, so sorting and taking the last item gives us the most
+        # recent report.
+        files.sort()
+        latest_report = files[-1]
+        with sftp.open(latest_report) as r:
+            cal = PaylocityCSVToiCalendar(r)
+            return cal
 
 
 def main() -> None:
-    makeSFTPClient()
-    with open("test_data.csv", newline="") as csvfile:
-        cal = PaylocityCSVToiCalendar(csvfile)
-        with open("output.ics", "wb") as f:
-            f.write(cal.to_ical())
+    cal = sftpLatestPaylocityReportToCalendar("ftp.paylocity.com", "Trussworks", "")
+    with open("output.ics", "wb") as f:
+        f.write(cal.to_ical())
     exit(0)
 
 

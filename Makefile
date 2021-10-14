@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 PRE-COMMIT := $(shell which pre-commit)
-PIPENV := bin/pipenv
+PIPENV := pipenv
 
 run:
 	$(PIPENV) run ./main.py
@@ -22,7 +22,7 @@ pre-commit: .git/hooks/pre-commit
 	touch .prereqs.stamp
 
 black:
-	$(PIPENV) run python3 -m black .
+	$(PIPENV) run black .
 
 .pipenv-dev-install.stamp:
 	$(PIPENV) install --dev --pre

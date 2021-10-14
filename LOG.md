@@ -172,3 +172,13 @@ pipenv install types-paramiko
 That worked. Hacked together a little function that hardcoded everything and successfully listed files from the Paylocity server. Next steps: figure out how to deal with the secrets (password, in this case), and add some configuration so I can test against my own SFTP server.
 
 Also, I’m starting to talk about this with MacRae and Eady, so I should get it up on GitHub, and move these notes into a markdown file in the project proper.
+
+## 2021-01-13
+
+Moved the project log into the git repository.
+
+Now make a new function that finds the latest CSV file from the SFTP server and streams it into the CSV parser. I had to muck with the types a bit; SFTPFile doesn't share a useful base class with IO, so I use a Union. Feels a little clumsy but easy to understand.
+
+This is, more or less, the core of what this tool needs to do. Yay!
+
+OK, *now* the next steps are figure out how to deal with secrets and configuration, and then push it up to Github.
