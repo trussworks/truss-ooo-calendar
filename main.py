@@ -15,6 +15,8 @@ from typing import TextIO, Union
 from enum import Enum, auto
 from uuid import uuid4
 from paramiko import SSHClient, SFTPClient, SFTPFile, AutoAddPolicy
+import argparse
+import os
 
 
 class LeaveType(Enum):
@@ -178,12 +180,32 @@ def sftpLatestPaylocityReportToCalendar(
             return cal
 
 
-def main() -> None:
-    cal = sftpLatestPaylocityReportToCalendar("ftp.paylocity.com", "Trussworks", "")
-    with open("output.ics", "wb") as f:
+def main(args: argparse.Namespace) -> None:
+    cal = sftpLatestPaylocityReportToCalendar(args.server, args.username, args.password)
+    with open(args.ics_file, "wb") as f:
         f.write(cal.to_ical())
     exit(0)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--server", action="store", default="ftp.paylocity.com", help="SFTP server"
+    )
+    parser.add_argument(
+        "--username", action="store", default="Trussworks", help="SFTP username"
+    )
+    parser.add_argument(
+        "--ics-file",
+        action="store",
+        default="output.ics",
+        help="Path to output the ICS file",
+    )
+    parser.add_argument(
+        "--password",
+        action="store",
+        default=os.environ["PAYLOCITY_SFTP_PASSWORD"],
+        help="Password for the SFTP user",
+    )
+    args = parser.parse_args()
+    main(args)
