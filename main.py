@@ -19,7 +19,7 @@ import argparse
 import os
 
 
-class LeaveType(Enum):
+class TimeOffType(Enum):
     VACATION = auto()
     SICK = auto()
     SURGE = auto()
@@ -29,22 +29,22 @@ class LeaveType(Enum):
     @staticmethod
     # LeaveType is a string literal here because the class LeaveType isn't
     # defined yet; this is how Python implements forward references.
-    def from_str(label: str) -> "LeaveType":
+    def from_str(label: str) -> "TimeOffType":
         if label in ("Vacation", "Floating Holiday"):
-            return LeaveType.VACATION
+            return TimeOffType.VACATION
         elif label in ("Sick", "COVID Childcare"):
-            return LeaveType.SICK
+            return TimeOffType.SICK
         elif label in ("Surge"):
-            return LeaveType.SURGE
+            return TimeOffType.SURGE
         elif label in ("Bereavement"):
-            return LeaveType.BEREAVEMENT
+            return TimeOffType.BEREAVEMENT
         elif label in ("Military Leave", "Jury Duty"):
-            return LeaveType.LEAVE
+            return TimeOffType.LEAVE
         else:
-            raise NotImplementedError("Unknown LeaveType: " + label)
+            raise NotImplementedError("Unknown TimeOffType: " + label)
 
 
-class LeaveStatus(Enum):
+class TimeOffStatus(Enum):
     TAKEN = auto()
     CANCELED = auto()
     DECLINED = auto()
@@ -52,30 +52,30 @@ class LeaveStatus(Enum):
     REQUESTED = auto()
 
     @staticmethod
-    def from_str(label: str) -> "LeaveStatus":
+    def from_str(label: str) -> "TimeOffStatus":
         if label in ("Taken"):
-            return LeaveStatus.TAKEN
+            return TimeOffStatus.TAKEN
         elif label in ("Cancelled"):
-            return LeaveStatus.CANCELED
+            return TimeOffStatus.CANCELED
         elif label in ("Declined"):
-            return LeaveStatus.DECLINED
+            return TimeOffStatus.DECLINED
         elif label in ("Approved"):
-            return LeaveStatus.APPROVED
+            return TimeOffStatus.APPROVED
         elif label in ("Submitted"):
-            return LeaveStatus.REQUESTED
+            return TimeOffStatus.REQUESTED
         else:
-            raise NotImplementedError("Unknown LeaveStatus: " + label)
+            raise NotImplementedError("Unknown TimeOffStatus: " + label)
 
 
-class LeaveEvent:
+class PaylocityTimeOffEvent:
     name: str
-    type: LeaveType
+    type: TimeOffType
     start_date: date
     end_date: date
-    status: LeaveStatus
+    status: TimeOffStatus
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, LeaveEvent):
+        if not isinstance(other, PaylocityTimeOffEvent):
             return NotImplemented
         return (
             self.name == other.name
@@ -85,30 +85,32 @@ class LeaveEvent:
             and self.status == other.status
         )
 
+    @staticmethod
+    def from_paylocity_time_off_row(row: list[str]) -> "PaylocityTimeOffEvent":
+        # row[6] is lastname, firstname
+        # row[8] is type (Vacation, Sick, etc.)
+        # row[9] is the start date
+        # row[10] is the end date
+        # row[13] is the status (Taken, Approved, Cancelled, etc.)
+        event = PaylocityTimeOffEvent()
+        event.name = nameFromPaylocityName(row[6])
+        event.type = TimeOffType.from_str(row[8])
+        # Need timezone aware datetime. strptime doesn't let us do that
+        # directly, so we use replace() to add timezone info.
+        event.start_date = datetime.strptime(row[9], "%m/%d/%Y").date()
+        event.end_date = datetime.strptime(row[10], "%m/%d/%Y").date()
+        event.status = TimeOffStatus.from_str(row[13])
+        return event
+
 
 def nameFromPaylocityName(p: str) -> str:
     names = p.split(",")
     return names[1].strip() + " " + names[0].strip()
 
 
-def eventFromPaylocityCSVRow(row: list[str]) -> LeaveEvent:
-    # row[6] is lastname, firstname
-    # row[8] is type (Vacation, Sick, etc.)
-    # row[9] is the start date
-    # row[10] is the end date
-    # row[13] is the status (Taken, Approved, Cancelled, etc.)
-    event = LeaveEvent()
-    event.name = nameFromPaylocityName(row[6])
-    event.type = LeaveType.from_str(row[8])
-    # Need timezone aware datetime. strptime doesn't let us do that
-    # directly, so we use replace() to add timezone info.
-    event.start_date = datetime.strptime(row[9], "%m/%d/%Y").date()
-    event.end_date = datetime.strptime(row[10], "%m/%d/%Y").date()
-    event.status = LeaveStatus.from_str(row[13])
-    return event
-
-
-def PaylocityCSVToLeaveEvents(csv_file: Union[TextIO, SFTPFile]) -> list[LeaveEvent]:
+def PaylocityCSVToLeaveEvents(
+    csv_file: Union[TextIO, SFTPFile]
+) -> list[PaylocityTimeOffEvent]:
     csvreader = csv.reader(csv_file)
     events = []
     try:
@@ -117,7 +119,7 @@ def PaylocityCSVToLeaveEvents(csv_file: Union[TextIO, SFTPFile]) -> list[LeaveEv
             # CSVReader "helpfully" returns as a row with 0 items.
             if len(row) < 15:
                 continue
-            event = eventFromPaylocityCSVRow(row)
+            event = PaylocityTimeOffEvent.from_paylocity_time_off_row(row)
             events.append(event)
     except csv.Error as e:
         print("line {}: {}".format(csvreader.line_num, e))
@@ -132,7 +134,7 @@ def makeCalendar() -> Calendar:
     return cal
 
 
-def vEventFromLeaveEvent(e: LeaveEvent) -> Event:
+def vEventFromLeaveEvent(e: PaylocityTimeOffEvent) -> Event:
     event = Event()
     now = datetime.now(ZoneInfo("UTC"))
     u = uuid4()
@@ -149,7 +151,7 @@ def vEventFromLeaveEvent(e: LeaveEvent) -> Event:
     return event
 
 
-def iCalendarFromLeaveEvents(events: list[LeaveEvent]) -> Calendar:
+def iCalendarFromLeaveEvents(events: list[PaylocityTimeOffEvent]) -> Calendar:
     cal = makeCalendar()
     for e in events:
         vevent = vEventFromLeaveEvent(e)

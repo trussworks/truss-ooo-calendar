@@ -11,7 +11,7 @@ class TestMain(unittest.TestCase):
         # isn't a great test but it is a decent smoke test.
         self.assertEqual(len(data), 940)
 
-    def test_eventFromPaylocityCSVRow(self) -> None:
+    def test_from_paylocity_time_off_row(self) -> None:
         row = [
             "Company:  (123456)",
             "GL Categor: ",
@@ -29,13 +29,13 @@ class TestMain(unittest.TestCase):
             "Taken",
             "Bosslast, Bossfirst",
         ]
-        testEvent = main.LeaveEvent()
+        testEvent = main.PaylocityTimeOffEvent()
         testEvent.name = "Firstname Lastname"
-        testEvent.type = main.LeaveType.VACATION
+        testEvent.type = main.TimeOffType.VACATION
         testEvent.start_date = date(2000, 1, 1)
         testEvent.end_date = date(2000, 1, 2)
-        testEvent.status = main.LeaveStatus.TAKEN
-        event = main.eventFromPaylocityCSVRow(row)
+        testEvent.status = main.TimeOffStatus.TAKEN
+        event = main.PaylocityTimeOffEvent.from_paylocity_time_off_row(row)
         self.assertEqual(event, testEvent)
 
     def test_nameFromPaylocityName(self) -> None:

@@ -182,3 +182,13 @@ Now make a new function that finds the latest CSV file from the SFTP server and 
 This is, more or less, the core of what this tool needs to do. Yay!
 
 OK, *now* the next steps are figure out how to deal with secrets and configuration, and then push it up to Github.
+
+## 2021-10-16
+
+Add `argparse` with helpful defaults. Pull the password from an environment variable for now; not sure if there is a better way to do this.
+
+Pushed up to Github since I want a couple of other folks to take a peek at it.
+
+Renamed LeaveEvent to PaylocityTimeOffEvent because I was confusing myself.
+
+Renamed LeaveType and LeaveStatus for similar reasons.
