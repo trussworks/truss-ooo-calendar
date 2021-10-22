@@ -192,3 +192,6 @@ Pushed up to Github since I want a couple of other folks to take a peek at it.
 Renamed LeaveEvent to PaylocityTimeOffEvent because I was confusing myself.
 
 Renamed LeaveType and LeaveStatus for similar reasons.
+
+## 2021-10-22
+Got to where I needed an S3 bucket, so I went through the process described in `legendary-waddle`, our corporate infra repository to get my account activated again. Now that I have AWS access restored, I can figure out how to make an S3 bucket in the sandbox using terraform and then I can write some code to write the ICS file into that S3 bucket.
