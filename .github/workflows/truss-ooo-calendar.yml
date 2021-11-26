@@ -4,4 +4,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo  "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+          cache: "pipenv"
+      - run: make test
