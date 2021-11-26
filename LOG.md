@@ -199,4 +199,6 @@ Got to where I needed an S3 bucket, so I went through the process described in `
 
 ## 2021-11-26
 
-Decided to try and get Github Actions working. Started by following the [quickstart](https://docs.github.com/en/actions/quickstart). Had to install ruby in order to fix YAML linting.
+Decided to try and get Github Actions working. Started by following the [quickstart](https://docs.github.com/en/actions/quickstart). Had to install ruby in order to fix YAML linting. Eventually managed to hack through getting all of the dependencies installed into Github Actions, but didn't see how to make it run on macOS and Ubuntu automatically. Decided to accept Ubuntu only since I'm doing local development on macOS.
+
+Annoyingly, I didn't see a way to make sure the Github Actions python environment matched the asdf python environment automatically, so I've created some technical risk by having that setting in 2 places now. OTOH, now I have a working CI, and it took me less than an hour.
