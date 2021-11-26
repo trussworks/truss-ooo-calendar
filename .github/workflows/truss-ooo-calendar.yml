@@ -2,6 +2,6 @@ name: Truss OOO Calendar
 on: [push]
 jobs:
   test:
-    runs-on: [macos-11, ubuntu-latest]
+    runs-on: macos-latest, ubuntu-latest
     steps:
       - run: echo  "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
