@@ -1,5 +1,4 @@
 __pycache__
-test_data.csv
 *.stamp
 output.ics
 .env

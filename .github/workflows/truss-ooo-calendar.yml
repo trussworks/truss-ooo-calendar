@@ -1,0 +1,17 @@
+name: Truss OOO Calendar
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+          cache: "pipenv"
+      - name: Set up pre-commit
+        run: pip install pre-commit
+      - name: Set up pipenv
+        run: pip install pipenv
+      - run: make test
